@@ -10,48 +10,22 @@
 
 ## Dev
 
-1. **(Optional) Create a virtual environment**:
+1. Run pre-setup script
 
     ```bash
-    python -m venv .venv
+    python 
     ```
 
-    1. Windows
-
-        ```bash
-        .venv\Scripts\activate
-        ```
-
-    2. Linux
-
-        ```bash
-        source .venv/bin/activate  
-        ```
-
-2. Install PDM:
+2. Run setup script
 
     ```bash
-    pip install pdm
+    pdm run setup
     ```
 
-3. Install dependencies:
-
-    ```bash
-    pdm install dev
-    ```
-
-4. Database setup
-
-    ```python
-    pdm run python src/manage.py makemigrations
-    pdm run python src/manage.py migrate
-
-    ```
-
-5. Run the development server: `pdm run backend:dev`
+<!-- TODO: Instr Dev Env README -->
 
 &nbsp;
 
 ## Prod
 
-TODO
+<!-- TODO: Instr Prod Env README -->

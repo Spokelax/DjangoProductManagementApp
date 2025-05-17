@@ -5,10 +5,10 @@
 groups = ["default", "dev"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:82c1aa24ae40223109f25148d33cb1f539abbe86f1769346a9f24ba45ba31863"
+content_hash = "sha256:32d17199275c25b2a35fc4b77d4cb6ce39866857d39d769eee28ec816221d4ee"
 
 [[metadata.targets]]
-requires_python = ">=3.12"
+requires_python = "==3.12.*"
 
 [[package]]
 name = "anyio"
@@ -89,6 +89,17 @@ groups = ["dev"]
 files = [
     {file = "certifi-2025.4.26-py3-none-any.whl", hash = "sha256:30350364dfe371162649852c63336a15c70c6510c2ad5015b21c2345311805f3"},
     {file = "certifi-2025.4.26.tar.gz", hash = "sha256:0a816057ea3cdefcef70270d2c515e4506bbc954f417fa5ade2021213bb8f0c6"},
+]
+
+[[package]]
+name = "chardet"
+version = "5.2.0"
+requires_python = ">=3.7"
+summary = "Universal encoding detector for Python 3"
+groups = ["default"]
+files = [
+    {file = "chardet-5.2.0-py3-none-any.whl", hash = "sha256:e1cf59446890a00105fe7b7912492ea04b6e6f06d4b742b2c788469e34c82970"},
+    {file = "chardet-5.2.0.tar.gz", hash = "sha256:1b3b6ff479a8c414bc3fa2c0852995695c4a026dcd6d0633b2dd092ca39c1cf7"},
 ]
 
 [[package]]
@@ -325,6 +336,22 @@ groups = ["dev"]
 files = [
     {file = "installer-0.7.0-py3-none-any.whl", hash = "sha256:05d1933f0a5ba7d8d6296bb6d5018e7c94fa473ceb10cf198a92ccea19c27b53"},
     {file = "installer-0.7.0.tar.gz", hash = "sha256:a26d3e3116289bb08216e0d0f7d925fcef0b0194eedfa0c944bcaaa106c4b631"},
+]
+
+[[package]]
+name = "loguru"
+version = "0.7.3"
+requires_python = "<4.0,>=3.5"
+summary = "Python logging made (stupidly) simple"
+groups = ["dev"]
+dependencies = [
+    "aiocontextvars>=0.2.0; python_version < \"3.7\"",
+    "colorama>=0.3.4; sys_platform == \"win32\"",
+    "win32-setctime>=1.0.0; sys_platform == \"win32\"",
+]
+files = [
+    {file = "loguru-0.7.3-py3-none-any.whl", hash = "sha256:31a33c10c8e1e10422bfd431aeb5d351c7cf7fa671e3c4df004162264b28220c"},
+    {file = "loguru-0.7.3.tar.gz", hash = "sha256:19480589e77d47b8d85b2c827ad95d49bf31b0dcde16593892eb51dd18706eb6"},
 ]
 
 [[package]]
@@ -729,4 +756,16 @@ dependencies = [
 files = [
     {file = "virtualenv-20.31.2-py3-none-any.whl", hash = "sha256:36efd0d9650ee985f0cad72065001e66d49a6f24eb44d98980f630686243cf11"},
     {file = "virtualenv-20.31.2.tar.gz", hash = "sha256:e10c0a9d02835e592521be48b332b6caee6887f332c111aa79a09b9e79efc2af"},
+]
+
+[[package]]
+name = "win32-setctime"
+version = "1.2.0"
+requires_python = ">=3.5"
+summary = "A small Python utility to set file creation time on Windows"
+groups = ["dev"]
+marker = "sys_platform == \"win32\""
+files = [
+    {file = "win32_setctime-1.2.0-py3-none-any.whl", hash = "sha256:95d644c4e708aba81dc3704a116d8cbc974d70b3bdb8be1d150e36be6e9d1390"},
+    {file = "win32_setctime-1.2.0.tar.gz", hash = "sha256:ae1fdf948f5640aae05c511ade119313fb6a30d7eabe25fef9764dca5873c4c0"},
 ]

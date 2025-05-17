@@ -1,29 +1,35 @@
-# TODO: Cleanup
-# TODO: Headers w/ desc
-
 [project]
 name = "DjangoProductManagementApp"
 version = "0.1.0"
-description = ""
-authors = [{ name = "Spokelax" }]
+description = "Default template for PDM package"
+authors = [{ name = "Spokelax", email = "spokelaxpc@gmail.com" }]
 license = { text = "MIT" }
 readme = "README.md"
-requires-python = ">=3.12"
-dependencies = ["Django>=5.2.1", "uvicorn>=0.34.2"]
+requires-python = "==3.12.*"
+dependencies = ["Django>=5.2.1", "uvicorn>=0.34.2", "chardet>=5.2.0"]
 
 [dependency-groups]
-dev = ["colorama>=0.4.6", "Ruff>=0.11.10", "pdm>=2.24.1", "black>=25.1.0"]
+dev = [
+  "colorama>=0.4.6",
+  "Ruff>=0.11.10",
+  "pdm>=2.24.1",
+  "black>=25.1.0",
+  "loguru>=0.7.3",
+]
+setup = ["colorama>=0.4.6", "loguru>=0.7.3", "click>=8.2.0"]
 
-[build-system]
-requires = ["setuptools >= 80.7.1"]
-build-backend = "setuptools.build_meta"
-
+[tool.pdm]
+distribution = false
 [tool.pdm.scripts]
 # script = " { cmd = "...", help = "..." }
-lint = { cmd = "ruff check src" }
-format = { cmd = "ruff format src" }
-"backend:start" = "uvicorn DjangoProductManagementApp.asgi:application --host 127.0.0.1 --port 8000 --app-dir src"
-"backend:dev" = "uvicorn DjangoProductManagementApp.asgi:application --reload --host 127.0.0.1 --port 8000 --app-dir src"
+
+setup = { cmd = "./scripts/setup.py", help = "Setup the project" }
+
+"app:start" = { cmd = "uvicorn DjangoProductManagementApp.asgi:application --host 127.0.0.1 --port 8000 --app-dir src", help = "Start the backend server" }
+"app:dev" = { cmd = "uvicorn DjangoProductManagementApp.asgi:application --reload --host 127.0.0.1 --port 8000 --app-dir src", help = "Start the backend server in development mode" }
+
+lint = { cmd = "ruff check src", help = "Lint the project (ruff)" }
+format = { cmd = "ruff format src", help = "Format the project (ruff)" }
 
 [tool.black]
 line-length = 88
@@ -41,7 +47,7 @@ exclude = '''
 
 [tool.ruff]
 exclude = ["venv", ".history", ".vscode"]
-include = ["src/**/*.py"]
+include = ["src/**/*.py", "scripts/**/*.py"]
 
 # Same as Black.
 line-length = 88
@@ -53,7 +59,7 @@ target-version = "py312"
 [tool.ruff.lint]
 # select = ["ALL"]
 select = ["E", "F", "I", "UP", "W"] # Minimal #TODO: add full desc
-ignore = []
+ignore = ["E501"]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
 fixable = ["ALL"]
