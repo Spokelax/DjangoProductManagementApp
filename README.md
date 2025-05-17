@@ -16,7 +16,11 @@
     python 
     ```
 
-2. Run setup script
+2. Enter virtual environment
+
+<!-- TODO: Add more details -->
+
+3. Run setup script
 
     ```bash
     pdm run setup

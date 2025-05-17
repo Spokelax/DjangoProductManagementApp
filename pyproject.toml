@@ -6,7 +6,12 @@ authors = [{ name = "Spokelax", email = "spokelaxpc@gmail.com" }]
 license = { text = "MIT" }
 readme = "README.md"
 requires-python = "==3.12.*"
-dependencies = ["Django>=5.2.1", "uvicorn>=0.34.2", "chardet>=5.2.0"]
+dependencies = [
+  "Django>=5.2.1",
+  "uvicorn>=0.34.2",
+  "chardet>=5.2.0",
+  "django-asgi-lifespan>=0.4.0",
+]
 
 [dependency-groups]
 dev = [
@@ -26,7 +31,7 @@ distribution = false
 setup = { cmd = "./scripts/setup.py", help = "Setup the project" }
 
 "app:start" = { cmd = "uvicorn DjangoProductManagementApp.asgi:application --host 127.0.0.1 --port 8000 --app-dir src", help = "Start the backend server" }
-"app:dev" = { cmd = "uvicorn DjangoProductManagementApp.asgi:application --reload --host 127.0.0.1 --port 8000 --app-dir src", help = "Start the backend server in development mode" }
+"app:dev" = { cmd = "uvicorn DjangoProductManagementApp.asgi:application --reload --host 127.0.0.1 --port 8000 --app-dir src --lifespan on", help = "Start the backend server in development mode" }
 
 lint = { cmd = "ruff check src", help = "Lint the project (ruff)" }
 format = { cmd = "ruff format src", help = "Format the project (ruff)" }

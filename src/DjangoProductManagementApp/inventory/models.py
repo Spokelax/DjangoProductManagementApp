@@ -60,6 +60,7 @@ class Category(models.Model):
 
     class Meta:
         db_table = "category"
+        verbose_name_plural = "Categories"
         ordering = ["name"]
         indexes = [
             models.Index(fields=["name"]),
@@ -75,6 +76,7 @@ class ProductCategory(models.Model):
 
     class Meta:
         db_table = "product_category"
+        verbose_name_plural = "Product ↔ Categories"
         unique_together = ("product", "category")
         ordering = ["product", "category"]
         indexes = [
@@ -90,6 +92,7 @@ class ReceiptProduct(models.Model):
 
     class Meta:
         db_table = "receipt_product"
+        verbose_name_plural = "Receipt ↔ Products"
         unique_together = ("receipt", "product")
         ordering = ["receipt", "product"]
         indexes = [
