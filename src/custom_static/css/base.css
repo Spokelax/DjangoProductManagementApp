@@ -1,0 +1,17 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.wrapper__nav {
+    flex-shrink: 0;
+}
+
+.wrapper__content {
+    flex: 1 0 auto;
+}
+
+.wrapper__footer {
+    flex-shrink: 0;
+}

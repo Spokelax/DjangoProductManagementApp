@@ -1,19 +1,19 @@
 """"""
 
+import os
+
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models.signals import post_save
+from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 
 # TODO: Double check model
-# TODO: Check if working in the admin panel
 
 
 class Product(models.Model):
     name = models.CharField(max_length=160, unique=True)
+    image = models.ImageField(upload_to="products/", null=True, blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    expiration_date = models.DateTimeField(null=True, blank=True)
-    stock = models.IntegerField()
     archived = models.BooleanField(default=False)
 
     class Meta:
@@ -21,19 +21,61 @@ class Product(models.Model):
         ordering = ["name"]
         indexes = [
             models.Index(fields=["name"]),
-            models.Index(fields=["expiration_date"]),
         ]
         constraints = [
             models.CheckConstraint(check=models.Q(price__gte=0), name="price_gte_0"),
-            models.CheckConstraint(check=models.Q(stock__gte=0), name="stock_gte_0"),
+        ]
+
+    def __str__(self):
+        return self.name
+
+    def total_stock(self):
+        return sum(batch.quantity for batch in self.batches.all())
+
+
+class Category(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    class Meta:
+        db_table = "category"
+        verbose_name_plural = "Categories"
+        ordering = ["name"]
+        indexes = [
+            models.Index(fields=["name"]),
         ]
 
     def __str__(self):
         return self.name
 
 
+class InventoryBatch(models.Model):
+    product = models.ForeignKey(
+        Product, on_delete=models.RESTRICT, related_name="batches"
+    )
+    quantity = models.IntegerField()
+    expiration_date = models.DateField(null=True, blank=True)
+
+    class Meta:
+        db_table = "inventory_batch"
+        verbose_name_plural = "Inventory Batches"
+        ordering = ["expiration_date"]
+        indexes = [
+            models.Index(fields=["product", "expiration_date"]),
+        ]
+        constraints = [
+            models.CheckConstraint(
+                check=models.Q(quantity__gte=0), name="batch_quantity_gte_0"
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.product.name} - {self.quantity} units expiring on {self.expiration_date}"
+
+
 class Receipt(models.Model):
-    total = models.DecimalField(max_digits=12, decimal_places=2)
+    total = models.DecimalField(
+        max_digits=12, decimal_places=2, editable=False, default=0
+    )  # not editable now
     created_at = models.DateTimeField(auto_now_add=True)
     archived = models.BooleanField(default=False)
 
@@ -51,23 +93,9 @@ class Receipt(models.Model):
         total = sum(
             rp.quantity * rp.price_at_purchase for rp in self.receiptproduct_set.all()
         )
-        self.total = total
-        self.save(update_fields=["total"])
-
-
-class Category(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-
-    class Meta:
-        db_table = "category"
-        verbose_name_plural = "Categories"
-        ordering = ["name"]
-        indexes = [
-            models.Index(fields=["name"]),
-        ]
-
-    def __str__(self):
-        return self.name
+        if self.total != total:
+            self.total = total
+            self.save(update_fields=["total"])
 
 
 class ProductCategory(models.Model):
@@ -86,18 +114,16 @@ class ProductCategory(models.Model):
 
 class ReceiptProduct(models.Model):
     receipt = models.ForeignKey(Receipt, on_delete=models.RESTRICT)
-    product = models.ForeignKey(Product, on_delete=models.RESTRICT)
+    batch = models.ForeignKey(InventoryBatch, on_delete=models.RESTRICT)
     quantity = models.IntegerField(default=1)
-    price_at_purchase = models.DecimalField(max_digits=10, decimal_places=2)
+    price_at_purchase = models.DecimalField(
+        max_digits=10, decimal_places=2, editable=False
+    )
 
     class Meta:
         db_table = "receipt_product"
-        verbose_name_plural = "Receipt ↔ Products"
-        unique_together = ("receipt", "product")
-        ordering = ["receipt", "product"]
-        indexes = [
-            models.Index(fields=["receipt", "product"]),
-        ]
+        unique_together = ("receipt", "batch")
+        ordering = ["receipt", "batch"]
         constraints = [
             models.CheckConstraint(
                 check=models.Q(quantity__gt=0), name="quantity_gt_0"
@@ -108,26 +134,52 @@ class ReceiptProduct(models.Model):
         ]
 
     def clean(self):
-        if self.quantity > self.product.stock:
+        if self.quantity > self.batch.quantity:
             raise ValidationError(
-                f"Cannot purchase {self.quantity} items; only {self.product.stock} in stock."
+                f"Cannot purchase {self.quantity} items; only {self.batch.quantity} in stock for this batch."
             )
 
     def save(self, *args, **kwargs):
         self.full_clean()
+        # Set price_at_purchase on creation if not set
         if not self.price_at_purchase:
-            self.price_at_purchase = self.product.price
+            self.price_at_purchase = self.batch.product.price
         super().save(*args, **kwargs)
 
 
 @receiver(post_save, sender=ReceiptProduct)
 def update_stock(sender, instance, created, **kwargs):
     if created:
-        product = instance.product
-        product.stock -= instance.quantity
-        product.save()
+        batch = instance.batch
+        batch.quantity -= instance.quantity
+        batch.save(update_fields=["quantity"])
 
 
 @receiver(post_save, sender=ReceiptProduct)
 def update_receipt_total(sender, instance, **kwargs):
     instance.receipt.update_total()
+
+
+@receiver(pre_save, sender=Product)
+def delete_old_image_on_change(sender, instance, **kwargs):
+    if not instance.pk:
+        return
+
+    try:
+        old_instance = Product.objects.get(pk=instance.pk)
+        old_image = old_instance.image
+    except Product.DoesNotExist:
+        return
+
+    new_image = instance.image
+
+    if old_image and (not new_image or old_image != new_image):
+        if os.path.isfile(old_image.path):
+            os.remove(old_image.path)
+
+
+@receiver(post_delete, sender=Product)
+def delete_image_on_delete(sender, instance, **kwargs):
+    if instance.image and os.path.isfile(instance.image.path):
+        os.remove(instance.image.path)
+        os.remove(instance.image.path)

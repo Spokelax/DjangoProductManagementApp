@@ -1,0 +1,45 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- HEAD Bloc -->
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    {% block head %}
+    <title>Inventory App</title>
+    <link rel="icon" href="{% static 'favicon.png' %}" type="image/png">
+    {% tailwind_css %}
+
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    {% endblock head %}
+</head>
+
+<!-- BODY Block -->
+
+<body>
+    <div class="wrapper">
+        <div class="wrapper__nav">
+            {% block nav %}
+            {% endblock nav %}
+        </div>
+        <div class=" wrapper__content">
+            {% block content %}
+            {% endblock content %}
+        </div>
+        <div class="wrapper__footer">
+            <footer class="footer sm:footer-horizontal footer-center bg-base-300 text-base-content p-4">
+                <aside>
+                    <p>
+                        <!-- TODO: add footer content -->
+                    </p>
+                </aside>
+            </footer>
+        </div>
+    </div>
+</body>
+
+</html>

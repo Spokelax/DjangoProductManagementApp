@@ -1,0 +1,8 @@
+.home-button {
+    border-color: transparent;
+}
+
+.card img {
+    object-fit: cover;
+    object-position: center;
+}

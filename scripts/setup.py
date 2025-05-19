@@ -92,8 +92,18 @@ def create_superuser() -> bool:
 def main():
     logger.info(f"{Fore.GREEN}---- Starting Django Setup ----{Style.RESET_ALL}")
 
-    # Step 1: Run migrations
-    logger.info(f"{Fore.GREEN}---- (1/5) Running Migrations ----{Style.RESET_ALL}")
+    # Step 1: Upgrade pip
+    logger.info(f"{Fore.GREEN}---- (1/6) Checking Pip Version ----{Style.RESET_ALL}")
+    if not run_command(
+        ["pdm", "run", "python", "-m", "pip", "install", "--upgrade", "pip"],
+        "Failed to upgrade pip",
+    ):
+        return
+
+    # TODO: Add setup step for NPM_BIN_PATH
+
+    # Step 2: Run migrations
+    logger.info(f"{Fore.GREEN}---- (2/6) Running Migrations ----{Style.RESET_ALL}")
     if not run_command(
         ["pdm", "run", "python", "src/manage.py", "makemigrations"],
         "Failed to create migrations",
@@ -105,11 +115,11 @@ def main():
     ):
         return
 
-    # Step 2: Generate static files (assuming preparation or no-op if no build step)
+    # Step 3: Generate static files (assuming preparation or no-op if no build step)
     logger.info(f"{Fore.GREEN}---- (2/5) Generating Static Files ----{Style.RESET_ALL}")
     logger.info("No custom static file generation step defined. Skipping.")
 
-    # Step 3: Collect static files
+    # Step 4: Collect static files
     logger.info(f"{Fore.GREEN}---- (3/5) Collecting Static Files ----{Style.RESET_ALL}")
     if not run_command(
         ["pdm", "run", "python", "src/manage.py", "collectstatic", "--noinput"],
@@ -117,13 +127,13 @@ def main():
     ):
         return
 
-    # Step 4: Create superuser
-    logger.info(f"{Fore.GREEN}---- (4/5) Creating Superuser ----{Style.RESET_ALL}")
+    # Step 5: Create superuser
+    logger.info(f"{Fore.GREEN}---- (5/6) Creating Superuser ----{Style.RESET_ALL}")
     if not create_superuser():
         return
 
-    # Step 5: Print PDM scripts
-    logger.info(f"{Fore.GREEN}---- (5/5) Listing PDM Scripts ----{Style.RESET_ALL}")
+    # Step 6: Print PDM scripts
+    logger.info(f"{Fore.GREEN}---- (6/6) Listing PDM Scripts ----{Style.RESET_ALL}")
 
     if not run_command(
         ["pdm", "run", "-l"], "Failed to list PDM scripts", useLogger=False

@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% load static %}
+
+<head>
+    {% block head %}
+    <title>Homepage</title>
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    {{ block.super }} <!-- ! Loads Tailwind CSS -->
+    {% endblock head %}
+</head>
+
+<body> <!-- No effect, for indentation only -->
+    <!-- NAVBAR -->
+    <div>
+        {% block nav %}
+        <div class="navbar bg-teal-700 shadow-sm">
+            <div class="navbar-start">
+                <!-- Add logo, favicon.svg -->
+                <!-- TODO: Disable icon grab -->
+                <div class="home-button btn text-xl bg-accent shadow text-white">
+                    <img class="w-12" src="{% static 'favicon.png' %}" alt="Shopping">
+                    <span class="inline">Web Shopping</span>
+                </div>
+            </div>
+            <div class="navbar-center hidden lg:flex">
+                <ul class="menu menu-horizontal">
+                    <div>
+                        <button class="btn text-xl">Inventory</button>
+                        <button class="btn btn-ghost text-xl">Receipts</button>
+                    </div>
+                </ul>
+            </div>
+            <div class="navbar-end">
+            </div>
+        </div>
+        {% endblock nav %}
+    </div>
+
+    <!-- CONTENT -->
+    <div>
+        {% block content %}
+        {% load custom_filters %}
+        <div class="container mx-auto px-4 py-8">
+            <div class="grid grid-cols-5 gap-6">
+                {% for product in products %}
+                <div class="card bg-base-300 shadow-sm w-full max-w-sm mx-auto">
+                    <figure class="bg-white pt-[56.25%] relative overflow-hidden">
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}"
+                            class="absolute top-0 left-0 w-full h-full object-contain" />
+                        {% endif %}
+                    </figure>
+
+                    <div class="card-body">
+                        <h2 class="card-title">
+                            {{ product.name }}
+                            <div
+                                class="badge {% if product.total_stock == 0 %}bg-gray-400{% elif product.total_stock < 10 %}bg-red-400{% elif product.total_stock < 20 %}bg-orange-400{% else %}bg-green-400{% endif %} text-white">
+                                {{ product.total_stock }} in stock
+                            </div>
+                        </h2>
+                        <div class="card-actions justify-start flex-wrap gap-2">
+                            {% for product_category in product.productcategory_set.all|slice:":3" %}
+                            <div class="badge badge-outline">{{ product_category.category.name }}</div>
+                            {% endfor %}
+                            {% if product.productcategory_set.count > 3 %}
+                            <div class="badge badge-outline">+{{ product.productcategory_set.count|add:"-3" }} more
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="flex justify-between items-center mt-4">
+                            <span class="text-lg font-semibold">€{{ product.price|format_price }}</span>
+                            <button class="btn btn-primary">Buy Now</button>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-span-5 text-center py-8">
+                    <p class="text-xl text-gray-500">No products available</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endblock content %}
+    </div>
+
+    <!-- FOOTER -->
+    <div>
+        {% block footer %}
+        {% endblock footer %}
+    </div>
+</body>

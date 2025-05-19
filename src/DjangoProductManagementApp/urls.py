@@ -18,12 +18,20 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
+
+from . import views
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    # Home page
+    path("", views.home, name="home"),
+    # Admin panel
+    path("admin/", admin.site.urls, name="admin"),
+    # Tailwind CSS
+    path("__reload__/", include("django_browser_reload.urls")),
 ]
 
 # ↓ Mandatory for serving static files in development (admin panel)
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

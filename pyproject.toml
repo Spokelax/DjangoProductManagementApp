@@ -3,7 +3,7 @@ name = "DjangoProductManagementApp"
 version = "0.1.0"
 description = "Default template for PDM package"
 authors = [{ name = "Spokelax", email = "spokelaxpc@gmail.com" }]
-license = { text = "MIT" }
+license-files = ["LICENSE"]
 readme = "README.md"
 requires-python = "==3.12.*"
 dependencies = [
@@ -11,6 +11,7 @@ dependencies = [
   "uvicorn>=0.34.2",
   "chardet>=5.2.0",
   "django-asgi-lifespan>=0.4.0",
+  "Pillow>=11.2.1",
 ]
 
 [dependency-groups]
@@ -20,21 +21,29 @@ dev = [
   "pdm>=2.24.1",
   "black>=25.1.0",
   "loguru>=0.7.3",
+  "django-tailwind[reload]>=4.0.1",
+  "python-dotenv>=1.1.0",
 ]
 setup = ["colorama>=0.4.6", "loguru>=0.7.3", "click>=8.2.0"]
 
 [tool.pdm]
 distribution = false
+
 [tool.pdm.scripts]
 # script = " { cmd = "...", help = "..." }
 
 setup = { cmd = "./scripts/setup.py", help = "Setup the project" }
 
-"app:start" = { cmd = "uvicorn DjangoProductManagementApp.asgi:application --host 127.0.0.1 --port 8000 --app-dir src", help = "Start the backend server" }
-"app:dev" = { cmd = "uvicorn DjangoProductManagementApp.asgi:application --reload --host 127.0.0.1 --port 8000 --app-dir src --lifespan on", help = "Start the backend server in development mode" }
+# "app:start" = { cmd = "uvicorn DjangoProductManagementApp.asgi:application --host 127.0.0.1 --port 8000 --app-dir src", help = "Start the backend server" }
+"app:dev" = { cmd = "python ./scripts/run_app_dev.py", help = "Start both Django and Tailwind servers in development mode" } # "app:start" = { cmd = "uvicorn DjangoProductManagementApp.asgi:application --host 127.0.0.1 --port 8000 --app-dir src", help = "Start the backend server" }
 
-lint = { cmd = "ruff check src", help = "Lint the project (ruff)" }
-format = { cmd = "ruff format src", help = "Format the project (ruff)" }
+lint = { cmd = "ruff check ./src", help = "Lint the project (ruff)" }
+format = { cmd = "ruff format ./src", help = "Format the project (ruff)" }
+
+makemigrations = { cmd = "python ./src/manage.py makemigrations", help = "Create new migrations" }
+migrate = { cmd = "python ./src/manage.py migrate", help = "Apply migrations" }
+
+static = { cmd = "python ./src/manage.py collectstatic --noinput", help = "Collect static files" }
 
 [tool.black]
 line-length = 88

@@ -10,7 +10,21 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
+
+from colorama import Fore, Style, init
+from dotenv import load_dotenv
+from loguru import logger
+
+init()
+load_dotenv()
+
+NPM_BIN_PATH = os.getenv("NPM_BIN_PATH")
+if not NPM_BIN_PATH:
+    logger.warning(
+        f"""\n{Fore.YELLOW}★ NPM_BIN_PATH is not set. Define it in .env or set it in your environment if needed.{Style.RESET_ALL}\n"""
+    )
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,8 +41,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
-# Application definition
+TAILWIND_APP_NAME = "theme"
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -38,6 +51,9 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "DjangoProductManagementApp.inventory.apps.InventoryConfig",
+    "tailwind",
+    "theme",
+    "django_browser_reload",
 ]
 
 MIDDLEWARE = [
@@ -49,6 +65,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_asgi_lifespan.middleware.LifespanStateMiddleware",
+    "django_browser_reload.middleware.BrowserReloadMiddleware",
 ]
 
 ROOT_URLCONF = "DjangoProductManagementApp.urls"
@@ -118,6 +135,19 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "static"
+
+STATICFILES_DIRS = [
+    BASE_DIR / "custom_static",
+]
+
+# Media settings (product images)
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+if DEBUG:
+    print(f"DEBUG: BASE_DIR: {BASE_DIR}")
+    print(f"DEBUG: STATICFILES_DIRS: {STATICFILES_DIRS}")
+    print(f"DEBUG: STATIC_ROOT: {STATIC_ROOT}")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

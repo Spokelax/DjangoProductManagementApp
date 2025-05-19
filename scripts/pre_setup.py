@@ -102,7 +102,10 @@ def create_venv(venv_path: Path) -> bool:
         logger(
             "ERROR", "This is likely due a process currently using the .venv directory."
         )
-        logger("ERROR", "Try killing any python processes and/or restart your IDE.")
+        logger(
+            "ERROR",
+            "Try killing any python processes and/or restart your IDE and waiting a few seconds.",
+        )
         return False
 
 
@@ -166,7 +169,7 @@ def main():
 
     # Install PDM dependencies
     if not run(
-        [venv_python, "-m", "pdm", "install"],
+        [venv_python, "-m", "pdm", "sync"],
         "Failed to install PDM dependencies",
     ):
         return
