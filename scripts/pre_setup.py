@@ -85,15 +85,6 @@ def create_venv(venv_path: Path) -> bool:
     try:
         venv.create(venv_path, with_pip=True, clear=True)
         logger("INFO", "Virtual environment created successfully")
-        # Activate the virtual environment
-        activate_script = venv_path / "Scripts" / "activate.bat"
-        if not activate_script.exists():
-            logger("ERROR", f"Activation script not found at {activate_script}")
-            return False
-
-        # Run the activation script
-        run([str(activate_script)], "Failed to activate virtual environment")
-        logger("INFO", "Virtual environment activated successfully")
 
         return True
 
@@ -111,12 +102,6 @@ def create_venv(venv_path: Path) -> bool:
 
 # TODO: Document me
 def main():
-    # Check if Windows
-    if os.environ.get("OS", "") != "Windows_NT":
-        logger("WARNING", "This script has not been tested on non-Windows systems.")
-        logger("WARNING", "Press any key to continue or Ctrl+C to exit.")
-        input()
-
     print(f"{Colors.GREEN_BACKGROUND}---- Starting Pre-setup ----{Colors.RESET}")
 
     # Find root path
@@ -153,10 +138,27 @@ def main():
         return
 
     # Get path to venv's Python executable
-    venv_python = str(venv_path / "Scripts" / "python.exe")
+    venv_python = ""
+    if os.environ.get("OS", "") != "Windows_NT":
+        venv_python = str(venv_path / "bin" / "python")
+    else:
+        venv_python = str(venv_path / "Scripts" / "python.exe")
+
     if not Path(venv_python).exists():
         logger("ERROR", f"Virtual environment Python not found at {venv_python}.")
         return
+
+    # If not Windows, add executable permission to activate script
+    if os.environ.get("OS", "") != "Windows_NT":
+        activate_script = venv_path / "bin" / "activate"
+        if not os.access(activate_script, os.X_OK):
+            logger("INFO", f"Setting executable permission for {activate_script}")
+            try:
+                os.chmod(activate_script, 0o755)
+                logger("INFO", f"Set executable permission for {activate_script}")
+            except Exception as e:
+                logger("ERROR", f"Failed to set executable permission: {e}")
+                return
 
     print(f"{Colors.GREEN_BACKGROUND}---- (2/2) PDM Install ----{Colors.RESET}")
 

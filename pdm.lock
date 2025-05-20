@@ -8,7 +8,7 @@ lock_version = "4.5.0"
 content_hash = "sha256:f454b261e47e96f56e569cc6ee36a9fdd6d54e223b7a1bd01edd5dafd7351db1"
 
 [[metadata.targets]]
-requires_python = "==3.12.*"
+requires_python = ">=3.12"
 
 [[package]]
 name = "anyio"

@@ -5,7 +5,7 @@ description = "Default template for PDM package"
 authors = [{ name = "Spokelax", email = "spokelaxpc@gmail.com" }]
 license-files = ["LICENSE"]
 readme = "README.md"
-requires-python = "==3.12.*"
+requires-python = ">=3.12"
 dependencies = [
   "Django>=5.2.1",
   "uvicorn>=0.34.2",
