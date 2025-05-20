@@ -1,0 +1,47 @@
+{% extends "inventory/base_template.html" %}
+{% load static %}
+
+<head>
+    {% block head %}
+    {{ block.super }}
+    {% block title %}<title>Receipts</title>{% endblock title %}
+    <!-- TODO: Figure out how to dynamically set the title defined in views.py -->
+    <link rel="stylesheet" href="{% static 'css/receipts.css' %}">
+    <script src="{% static 'js/receipts.js' %}" defer></script>
+    {% endblock head %}
+</head>
+
+<body>
+    <!-- CONTENT -->
+    <div>
+        {% block content %}
+        <div class="container mx-auto px-4 py-8">
+            <h2 class="text-2xl font-bold mb-6">Receipts</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for receipt in receipts %}
+                <div class="card shadow bg-base-200">
+                    <div class="card-body">
+                        <h3 class="text-lg font-semibold">Receipt #REC-{{ receipt.id }} - €{{ receipt.total }}</h3>
+                        <p class="text-sm text-gray-500">{{ receipt.created_at|date:"Y-m-d H:i:s" }}</p>
+                        <button class="btn btn-outline btn-primary mt-4"
+                            onclick="openReceiptModal({{ receipt.id }})">View Details</button>
+                    </div>
+                </div>
+
+                <!-- Hidden modal content -->
+                <div id="receipt-modal-{{ receipt.id }}" class="modal hidden">
+                    <div class="modal-box bg-base-200">
+                        <h3 class="font-bold text-xl mb-4">Receipt #REC-{{ receipt.id }}</h3>
+                        <pre
+                            class="text-sm bg-base-100 p-4 rounded shadow overflow-x-auto">{{ receipt.get_receipt_text }}</pre>
+                        <div class="modal-action">
+                            <button class="btn btn-error" onclick="closeReceiptModal({{ receipt.id }})">Close</button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endblock %}
+    </div>
+</body>

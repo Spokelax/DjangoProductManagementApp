@@ -16,15 +16,29 @@
     python 
     ```
 
-2. Enter virtual environment
-
-<!-- TODO: Add more details -->
+2. Enter virtual environment as explained
 
 3. Run setup script
 
     ```bash
-    pdm run setup
+    pdm run setup 
     ```
+
+4. Run development server using;
+
+    4.1. Django
+
+    ```bash
+    python src/manage.py runserver
+    ```
+
+    4.2. Tailwind
+
+    ```bash
+    python src/manage.py tailwind start
+    ```
+
+<!-- TODO: Add more details -->
 
 <!-- TODO: Instr Dev Env README -->
 

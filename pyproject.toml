@@ -35,13 +35,15 @@ distribution = false
 setup = { cmd = "./scripts/setup.py", help = "Setup the project" }
 
 # "app:start" = { cmd = "uvicorn DjangoProductManagementApp.asgi:application --host 127.0.0.1 --port 8000 --app-dir src", help = "Start the backend server" }
-"app:dev" = { cmd = "python ./scripts/run_app_dev.py", help = "Start both Django and Tailwind servers in development mode" } # "app:start" = { cmd = "uvicorn DjangoProductManagementApp.asgi:application --host 127.0.0.1 --port 8000 --app-dir src", help = "Start the backend server" }
+# "app:dev" = { cmd = "python ./scripts/run_app_dev.py", help = "Start both Django and Tailwind servers in development mode" } # "app:start" = { cmd = "uvicorn DjangoProductManagementApp.asgi:application --host 127.0.0.1 --port 8000 --app-dir src", help = "Start the backend server" }
 
 lint = { cmd = "ruff check ./src", help = "Lint the project (ruff)" }
 format = { cmd = "ruff format ./src", help = "Format the project (ruff)" }
 
 makemigrations = { cmd = "python ./src/manage.py makemigrations", help = "Create new migrations" }
 migrate = { cmd = "python ./src/manage.py migrate", help = "Apply migrations" }
+flush = { cmd = "python ./src/manage.py flush --no-input", help = "Flush the database" }
+superuser = { cmd = "python ./src/manage.py createsuperuser", help = "Create a superuser for the database" }
 
 static = { cmd = "python ./src/manage.py collectstatic --noinput", help = "Collect static files" }
 
@@ -111,3 +113,5 @@ docstring-code-line-length = "dynamic"
 
 [tool.isort]
 profile = "black"
+makemigrations = { cmd = "python ./src/manage.py makemigrations", help = "Create new migrations" }
+migrate = { cmd = "python ./src/manage.py migrate", help = "Apply migrations" }

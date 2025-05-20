@@ -1,13 +1,9 @@
-""""""
-
 import os
 
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
-
-# TODO: Double check model
 
 
 class Product(models.Model):
@@ -30,7 +26,7 @@ class Product(models.Model):
         return self.name
 
     def total_stock(self):
-        return sum(batch.quantity for batch in self.batches.all())
+        return sum(batch.available_stock() for batch in self.batches.all())
 
 
 class Category(models.Model):
@@ -68,6 +64,18 @@ class InventoryBatch(models.Model):
             ),
         ]
 
+    def available_stock(self):
+        used_quantity = sum(rp.quantity for rp in self.receiptproduct_set.all())
+        print(
+            "Available stock:",
+            self.quantity,
+            "Used stock:",
+            used_quantity,
+            "Available:",
+            self.quantity - used_quantity,
+        )
+        return self.quantity - used_quantity
+
     def __str__(self):
         return f"{self.product.name} - {self.quantity} units expiring on {self.expiration_date}"
 
@@ -75,7 +83,7 @@ class InventoryBatch(models.Model):
 class Receipt(models.Model):
     total = models.DecimalField(
         max_digits=12, decimal_places=2, editable=False, default=0
-    )  # not editable now
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     archived = models.BooleanField(default=False)
 
@@ -96,6 +104,44 @@ class Receipt(models.Model):
         if self.total != total:
             self.total = total
             self.save(update_fields=["total"])
+
+    def get_receipt_text(self):
+        lines = [
+            "Web Shopping Receipt",
+            f"Receipt #REC-{self.id}-{self.created_at.strftime('%Y%m%d%H%M%S')}",
+            f"Date: {self.created_at.strftime('%Y-%m-%d %H:%M:%S')}",
+            "-" * 80,
+            f"{'Item':<20} {'Batch':<8} {'Expires':<12} {'Qty':<5} {'Price':<10} {'Total':<10}",
+            "-" * 80,
+        ]
+
+        for rp in self.receiptproduct_set.all():
+            product_name = rp.batch.product.name[:20]
+            batch_id = str(rp.batch.id)
+            expiration = (
+                rp.batch.expiration_date.strftime("%Y-%m-%d")
+                if rp.batch.expiration_date
+                else "N/A"
+            )
+            qty = rp.quantity
+            price = rp.price_at_purchase
+            total = qty * price
+
+            lines.append(
+                f"{product_name:<20} {batch_id:<8} {expiration:<12} {qty:<5} €{price:<9.2f} €{total:<9.2f}"
+            )
+
+        lines += [
+            "-" * 80,
+            f"{'Total:':>64} €{self.total:.2f}",
+            "-" * 80,
+            "Thank you for your purchase!",
+        ]
+
+        return "\n".join(lines)
+
+    def __str__(self):
+        return f"Receipt #{self.id} - €{self.total}"
 
 
 class ProductCategory(models.Model):
@@ -122,6 +168,7 @@ class ReceiptProduct(models.Model):
 
     class Meta:
         db_table = "receipt_product"
+        verbose_name_plural = "Receipt ↔ Products"
         unique_together = ("receipt", "batch")
         ordering = ["receipt", "batch"]
         constraints = [
@@ -134,25 +181,17 @@ class ReceiptProduct(models.Model):
         ]
 
     def clean(self):
-        if self.quantity > self.batch.quantity:
+        available = self.batch.available_stock()
+        if self.quantity > available:
             raise ValidationError(
-                f"Cannot purchase {self.quantity} items; only {self.batch.quantity} in stock for this batch."
+                f"Cannot purchase {self.quantity} items; only {available} available in this batch."
             )
 
     def save(self, *args, **kwargs):
         self.full_clean()
-        # Set price_at_purchase on creation if not set
         if not self.price_at_purchase:
             self.price_at_purchase = self.batch.product.price
         super().save(*args, **kwargs)
-
-
-@receiver(post_save, sender=ReceiptProduct)
-def update_stock(sender, instance, created, **kwargs):
-    if created:
-        batch = instance.batch
-        batch.quantity -= instance.quantity
-        batch.save(update_fields=["quantity"])
 
 
 @receiver(post_save, sender=ReceiptProduct)
@@ -164,15 +203,12 @@ def update_receipt_total(sender, instance, **kwargs):
 def delete_old_image_on_change(sender, instance, **kwargs):
     if not instance.pk:
         return
-
     try:
         old_instance = Product.objects.get(pk=instance.pk)
         old_image = old_instance.image
     except Product.DoesNotExist:
         return
-
     new_image = instance.image
-
     if old_image and (not new_image or old_image != new_image):
         if os.path.isfile(old_image.path):
             os.remove(old_image.path)
@@ -181,5 +217,4 @@ def delete_old_image_on_change(sender, instance, **kwargs):
 @receiver(post_delete, sender=Product)
 def delete_image_on_delete(sender, instance, **kwargs):
     if instance.image and os.path.isfile(instance.image.path):
-        os.remove(instance.image.path)
         os.remove(instance.image.path)

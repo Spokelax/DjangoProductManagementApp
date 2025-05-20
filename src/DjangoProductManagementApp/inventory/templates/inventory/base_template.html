@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+{{ block.super }}
+<script src="{% static 'js/cart.js' %}" defer></script>
+<script src="{% static 'js/receipt.js' %}" defer></script>
+{% endblock head %}
+
+{% block nav %}
+{% include "inventory/components/navbar.html" %}
+{% endblock nav %}
+
+{% block footer %}
+{% include "inventory/components/footer.html" %}
+{% endblock footer %}

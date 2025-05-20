@@ -25,6 +25,17 @@ from . import views
 urlpatterns = [
     # Home page
     path("", views.home, name="home"),
+    # Inventory page (default)
+    # ...
+    # Receipt page
+    path("receipts/", views.receipt_page, name="receipt"),
+    # API
+    path(
+        "api/product/<int:product_id>/batches/",
+        views.get_product_batches,
+        name="get_product_batches",
+    ),
+    path("api/checkout/", views.checkout, name="checkout"),
     # Admin panel
     path("admin/", admin.site.urls, name="admin"),
     # Tailwind CSS

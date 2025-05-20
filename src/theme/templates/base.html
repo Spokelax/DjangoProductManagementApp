@@ -2,23 +2,23 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<!-- HEAD Bloc -->
+<!-- HEAD -->
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
-    {% block head %}
-    <title>Inventory App</title>
-    <link rel="icon" href="{% static 'favicon.png' %}" type="image/png">
-    {% tailwind_css %}
-
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="icon" href="{% static 'favicon.png' %}" type="image/png">
+
+    {% block head %}
+    {% tailwind_css %}
+    {% block title %}<title>App</title>{% endblock title %}
     {% endblock head %}
 </head>
 
-<!-- BODY Block -->
+<!-- BODY -->
 
 <body>
     <div class="wrapper">
@@ -26,18 +26,13 @@
             {% block nav %}
             {% endblock nav %}
         </div>
-        <div class=" wrapper__content">
+        <div class="wrapper__content">
             {% block content %}
             {% endblock content %}
         </div>
         <div class="wrapper__footer">
-            <footer class="footer sm:footer-horizontal footer-center bg-base-300 text-base-content p-4">
-                <aside>
-                    <p>
-                        <!-- TODO: add footer content -->
-                    </p>
-                </aside>
-            </footer>
+            {% block footer %}
+            {% endblock footer %}
         </div>
     </div>
 </body>
