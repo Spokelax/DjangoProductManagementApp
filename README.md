@@ -141,3 +141,7 @@
 
 [ ] #TODO: Write data sample population script for the database
 [ ] #TODO: Add prod deployment instructions
+
+## ©️ Credits
+
+* [Flaticon](https://www.flaticon.com/) for the icons used in the app
